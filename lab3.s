@@ -42,12 +42,18 @@ __Vectors	DCD		INITIAL_MSP			; stack pointer value when stack is empty
 Reset_Handler	PROC
   
 
-		LDR R0, = 0x0
+		LDR R0, = 0x3
 	
-		BL factorial ;Argument held in R0. Answer returned in R1. R3 overflow flag. 
+		BL factorial ;Argument held in R0. Answer returned in R1.
 		
 		LDR R10, = 0x1
 		ALIGN
+			
+		LDR R1, = string1
+		BL countVowels ;String held in R1, answer returned in R2
+		
+		LDR R1, = string2
+		BL countVowels
 
 
 		ENDP
@@ -60,7 +66,6 @@ factorial  PROC
 		PUSH {R3}
 		LDR R3,= 0x1 ;Designate R3 as the counter register
 		LDR R1,= 0x1 ;Clear the return register
-		LDR R2,= 0x0 ;Clear the flag
 		
 facLoop
 		MULS R1, R3, R1
@@ -87,6 +92,55 @@ overflowCase
 		;
 
 		ENDP
+			
+countVowels PROC
+	
+		PUSH {R0, R3} 
+		
+		LDR R2, =-1
+		
+
+increment
+
+		ADD R2, R2, #1
+		
+countLoop
+
+		LDRB R3, [R1] ;R3 now holds character at pos R2
+		ADD R1, R1, #1
+		
+		CMP R3, #0
+		BEQ doneCounting
+		
+		CMP R3, #0x41 ;A
+		BEQ increment
+		CMP R3, #0x45 ;E
+		BEQ increment
+		CMP R3, #0x49 ;I
+		BEQ increment
+		CMP R3, #0x4F ;O
+		BEQ increment
+		CMP R3, #0x55 ;U
+		BEQ increment
+		CMP R3, #0x61 ;a
+		BEQ increment
+		CMP R3, #0x65 ;e
+		BEQ increment
+		CMP R3, #0x69 ;i
+		BEQ increment
+		CMP R3, #0x6F ;o
+		BEQ increment
+		CMP R3, #0x75 ;u
+		BEQ increment
+		
+		B countLoop
+		
+doneCounting
+		POP {R0, R3}
+
+		BX LR
+		
+		ENDP
 
 
 
@@ -96,14 +150,14 @@ string1
 			DCB		"ENSE 352 is fun and I am learning ARM assembly!",0
 			
 string2
-			DCB		"Yes I really love it!"
+			DCB		"Yes I really love it!",0
 
 
 
 
 
 
-
+	ALIGN
 
 	END
 
